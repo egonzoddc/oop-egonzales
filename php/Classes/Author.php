@@ -10,7 +10,7 @@
 /**
  * accessors for variables
  */
-class Profile {
+class Author {
 
 	private $authorId;
 	private $authorEmail;
