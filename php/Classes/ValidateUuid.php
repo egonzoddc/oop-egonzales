@@ -1,5 +1,5 @@
 <?php
-namespace EGONZALES163\OOP;
+namespace egonzoddc\OOP;
 require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
 use Ramsey\Uuid\Uuid;
 /**

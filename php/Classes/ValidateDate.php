@@ -1,5 +1,5 @@
 <?php
-namespace EGONZALES163\OOP;
+namespace egonzoddc\OOP;
 /**
  * Trait to Validate a mySQL Date
  *
