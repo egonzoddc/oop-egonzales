@@ -1,419 +1,312 @@
 <?php
-namespace Deepdivedylan\DataDesign;
-
-require_once("autoload.php");
-require_once(dirname(__DIR__) . "/vendor/autoload.php");
-
+namespace Edu\Cnm\DataDesign;
+require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
 use Ramsey\Uuid\Uuid;
-
 /**
- * Small Cross Section of a Twitter like Message
+ * Cross Section of a Twitter Profile
  *
- * This Tweet can be considered a small example of what services like Twitter store when messages are sent and
- * received using Twitter. This can easily be extended to emulate more features of Twitter.
+ * This is a cross section of what is probably stored about a Twitter user. This entity is a top level entity that
+ * holds the keys to the other entities in this example (i.e., Favorite and Profile).
  *
  * @author Dylan McDonald <dmcdonald21@cnm.edu>
- * @version 3.0.0
+ * @version 4.0.0
  **/
-class Tweet implements \JsonSerializable {
-	use ValidateDate;
+class Profile implements \JsonSerializable {
 	use ValidateUuid;
 	/**
-	 * id for this Tweet; this is the primary key
-	 * @var Uuid $tweetId
+	 * id for this Profile; this is the primary key
+	 * @var Uuid $profileId
 	 **/
-	private $tweetId;
+	private $profileId;
 	/**
-	 * id of the Profile that sent this Tweet; this is a foreign key
-	 * @var Uuid $tweetProfileId
+	 * at handle for this Profile; this is a unique index
+	 * @var string $profileAtHandle
 	 **/
-	private $tweetProfileId;
+	private $profileAtHandle;
 	/**
-	 * actual textual content of this Tweet
-	 * @var string $tweetContent
+	 * token handed out to verify that the profile is valid and not malicious.
+	 *v@var $profileActivationToken
 	 **/
-	private $tweetContent;
+	private $profileActivationToken;
 	/**
-	 * date and time this Tweet was sent, in a PHP DateTime object
-	 * @var \DateTime $tweetDate
+	 * email for this Profile; this is a unique index
+	 * @var string $profileEmail
 	 **/
-	private $tweetDate;
-
+	private $profileEmail;
 	/**
-	 * constructor for this Tweet
+	 * hash for profile password
+	 * @var $profileHash
+	 **/
+	private $profileHash;
+	/**
+	 * phone number for this Profile
+	 * @var string $profilePhone
+	 **/
+	private $profilePhone;
+	/**
+	 * salt for profile password
 	 *
-	 * @param string|Uuid $newTweetId id of this Tweet or null if a new Tweet
-	 * @param string|Uuid $newTweetProfileId id of the Profile that sent this Tweet
-	 * @param string $newTweetContent string containing actual tweet data
-	 * @param \DateTime|string|null $newTweetDate date and time Tweet was sent or null if set to current date and time
+	 * @var $profileSalt
+	 */
+	private $profileSalt;
+	/**
+	 * constructor for this Profile
+	 *
+	 * @param string|Uuid $newProfileId id of this Profile or null if a new Profile
+	 * @param string $newProfileActivationToken activation token to safe guard against malicious accounts
+	 * @param string $newProfileAtHandle string containing newAtHandle
+	 * @param string $newProfileEmail string containing email
+	 * @param string $newProfileHash string containing password hash
+	 * @param string $newProfilePhone string containing phone number
+	 * @param string $newProfileSalt string containing passowrd salt
 	 * @throws \InvalidArgumentException if data types are not valid
 	 * @throws \RangeException if data values are out of bounds (e.g., strings too long, negative integers)
-	 * @throws \TypeError if data types violate type hints
+	 * @throws \TypeError if a data type violates a data hint
 	 * @throws \Exception if some other exception occurs
 	 * @Documentation https://php.net/manual/en/language.oop5.decon.php
 	 **/
-	public function __construct($newTweetId, $newTweetProfileId, string $newTweetContent, $newTweetDate = null) {
+	public function __construct($newProfileId, ?string $newProfileActivationToken, string $newProfileAtHandle, string $newProfileEmail, string $newProfileHash, ?string $newProfilePhone, string $newProfileSalt) {
 		try {
-			$this->setTweetId($newTweetId);
-			$this->setTweetProfileId($newTweetProfileId);
-			$this->setTweetContent($newTweetContent);
-			$this->setTweetDate($newTweetDate);
-		}
+			$this->setProfileId($newProfileId);
+			$this->setProfileActivationToken($newProfileActivationToken);
+			$this->setProfileAtHandle($newProfileAtHandle);
+			$this->setProfileEmail($newProfileEmail);
+			$this->setProfileHash($newProfileHash);
+			$this->setProfilePhone($newProfilePhone);
+			$this->setProfileSalt($newProfileSalt);
+		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
 			//determine what exception type was thrown
-		catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
 			$exceptionType = get_class($exception);
 			throw(new $exceptionType($exception->getMessage(), 0, $exception));
 		}
 	}
-
 	/**
-	 * accessor method for tweet id
+	 * accessor method for profile id
 	 *
-	 * @return Uuid value of tweet id
+	 * @return Uuid value of profile id (or null if new Profile)
 	 **/
-	public function getTweetId() : Uuid {
-		return($this->tweetId);
+	public function getProfileId(): Uuid {
+		return ($this->profileId);
 	}
-
 	/**
-	 * mutator method for tweet id
+	 * mutator method for profile id
 	 *
-	 * @param Uuid|string $newTweetId new value of tweet id
-	 * @throws \RangeException if $newTweetId is not positive
-	 * @throws \TypeError if $newTweetId is not a uuid or string
-	 **/
-	public function setTweetId( $newTweetId) : void {
-		try {
-			$uuid = self::validateUuid($newTweetId);
-		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
-			$exceptionType = get_class($exception);
-			throw(new $exceptionType($exception->getMessage(), 0, $exception));
-		}
-
-		// convert and store the tweet id
-		$this->tweetId = $uuid;
-	}
-
-	/**
-	 * accessor method for tweet profile id
-	 *
-	 * @return Uuid value of tweet profile id
-	 **/
-	public function getTweetProfileId() : Uuid{
-		return($this->tweetProfileId);
-	}
-
-	/**
-	 * mutator method for tweet profile id
-	 *
-	 * @param string | Uuid $newTweetProfileId new value of tweet profile id
+	 * @param  Uuid| string $newProfileId value of new profile id
 	 * @throws \RangeException if $newProfileId is not positive
-	 * @throws \TypeError if $newTweetProfileId is not an integer
+	 * @throws \TypeError if the profile Id is not
 	 **/
-	public function setTweetProfileId( $newTweetProfileId) : void {
+	public function setProfileId( $newProfileId): void {
 		try {
-			$uuid = self::validateUuid($newTweetProfileId);
+			$uuid = self::validateUuid($newProfileId);
 		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
 			$exceptionType = get_class($exception);
 			throw(new $exceptionType($exception->getMessage(), 0, $exception));
 		}
-
 		// convert and store the profile id
-		$this->tweetProfileId = $uuid;
+		$this->profileId = $uuid;
 	}
-
 	/**
-	 * accessor method for tweet content
+	 * accessor method for account activation token
 	 *
-	 * @return string value of tweet content
-	 **/
-	public function getTweetContent() : string {
-		return($this->tweetContent);
+	 * @return string value of the activation token
+	 */
+	public function getProfileActivationToken() : ?string {
+		return ($this->profileActivationToken);
 	}
-
 	/**
-	 * mutator method for tweet content
+	 * mutator method for account activation token
 	 *
-	 * @param string $newTweetContent new value of tweet content
-	 * @throws \InvalidArgumentException if $newTweetContent is not a string or insecure
-	 * @throws \RangeException if $newTweetContent is > 140 characters
-	 * @throws \TypeError if $newTweetContent is not a string
-	 **/
-	public function setTweetContent(string $newTweetContent) : void {
-		// verify the tweet content is secure
-		$newTweetContent = trim($newTweetContent);
-		$newTweetContent = filter_var($newTweetContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
-		if(empty($newTweetContent) === true) {
-			throw(new \InvalidArgumentException("tweet content is empty or insecure"));
-		}
-
-		// verify the tweet content will fit in the database
-		if(strlen($newTweetContent) > 140) {
-			throw(new \RangeException("tweet content too large"));
-		}
-
-		// store the tweet content
-		$this->tweetContent = $newTweetContent;
-	}
-
-	/**
-	 * accessor method for tweet date
-	 *
-	 * @return \DateTime value of tweet date
-	 **/
-	public function getTweetDate() : \DateTime {
-		return($this->tweetDate);
-	}
-
-	/**
-	 * mutator method for tweet date
-	 *
-	 * @param \DateTime|string|null $newTweetDate tweet date as a DateTime object or string (or null to load the current time)
-	 * @throws \InvalidArgumentException if $newTweetDate is not a valid object or string
-	 * @throws \RangeException if $newTweetDate is a date that does not exist
-	 **/
-	public function setTweetDate($newTweetDate = null) : void {
-		// base case: if the date is null, use the current date and time
-		if($newTweetDate === null) {
-			$this->tweetDate = new \DateTime();
+	 * @param string $newProfileActivationToken
+	 * @throws \InvalidArgumentException  if the token is not a string or insecure
+	 * @throws \RangeException if the token is not exactly 32 characters
+	 * @throws \TypeError if the activation token is not a string
+	 */
+	public function setProfileActivationToken(?string $newProfileActivationToken): void {
+		if($newProfileActivationToken === null) {
+			$this->profileActivationToken = null;
 			return;
 		}
-
-		// store the like date using the ValidateDate trait
-		try {
-			$newTweetDate = self::validateDateTime($newTweetDate);
-		} catch(\InvalidArgumentException | \RangeException $exception) {
-			$exceptionType = get_class($exception);
-			throw(new $exceptionType($exception->getMessage(), 0, $exception));
+		$newProfileActivationToken = strtolower(trim($newProfileActivationToken));
+		if(ctype_xdigit($newProfileActivationToken) === false) {
+			throw(new\RangeException("user activation is not valid"));
 		}
-		$this->tweetDate = $newTweetDate;
+		//make sure user activation token is only 32 characters
+		if(strlen($newProfileActivationToken) !== 32) {
+			throw(new\RangeException("user activation token has to be 32"));
+		}
+		$this->profileActivationToken = $newProfileActivationToken;
 	}
-
 	/**
-	 * inserts this Tweet into mySQL
+	 * accessor method for at handle
 	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError if $pdo is not a PDO connection object
+	 * @return string value of at handle
 	 **/
-	public function insert(\PDO $pdo) : void {
-
-		// create query template
-		$query = "INSERT INTO tweet(tweetId,tweetProfileId, tweetContent, tweetDate) VALUES(:tweetId, :tweetProfileId, :tweetContent, :tweetDate)";
-		$statement = $pdo->prepare($query);
-
-		// bind the member variables to the place holders in the template
-		$formattedDate = $this->tweetDate->format("Y-m-d H:i:s.u");
-		$parameters = ["tweetId" => $this->tweetId->getBytes(), "tweetProfileId" => $this->tweetProfileId->getBytes(), "tweetContent" => $this->tweetContent, "tweetDate" => $formattedDate];
-		$statement->execute($parameters);
+	public function getProfileAtHandle(): string {
+		return ($this->profileAtHandle);
 	}
-
-
 	/**
-	 * deletes this Tweet from mySQL
+	 * mutator method for at handle
 	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError if $pdo is not a PDO connection object
+	 * @param string $newProfileAtHandle new value of at handle
+	 * @throws \InvalidArgumentException if $newAtHandle is not a string or insecure
+	 * @throws \RangeException if $newAtHandle is > 32 characters
+	 * @throws \TypeError if $newAtHandle is not a string
 	 **/
-	public function delete(\PDO $pdo) : void {
-
-		// create query template
-		$query = "DELETE FROM tweet WHERE tweetId = :tweetId";
-		$statement = $pdo->prepare($query);
-
-		// bind the member variables to the place holder in the template
-		$parameters = ["tweetId" => $this->tweetId->getBytes()];
-		$statement->execute($parameters);
+	public function setProfileAtHandle(string $newProfileAtHandle) : void {
+		// verify the at handle is secure
+		$newProfileAtHandle = trim($newProfileAtHandle);
+		$newProfileAtHandle = filter_var($newProfileAtHandle, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+		if(empty($newProfileAtHandle) === true) {
+			throw(new \InvalidArgumentException("profile at handle is empty or insecure"));
+		}
+		// verify the at handle will fit in the database
+		if(strlen($newProfileAtHandle) > 32) {
+			throw(new \RangeException("profile at handle is too large"));
+		}
+		// store the at handle
+		$this->profileAtHandle = $newProfileAtHandle;
 	}
-
 	/**
-	 * updates this Tweet in mySQL
+	 * accessor method for email
 	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError if $pdo is not a PDO connection object
+	 * @return string value of email
 	 **/
-	public function update(\PDO $pdo) : void {
-
-		// create query template
-		$query = "UPDATE tweet SET tweetProfileId = :tweetProfileId, tweetContent = :tweetContent, tweetDate = :tweetDate WHERE tweetId = :tweetId";
-		$statement = $pdo->prepare($query);
-
-
-		$formattedDate = $this->tweetDate->format("Y-m-d H:i:s.u");
-		$parameters = ["tweetId" => $this->tweetId->getBytes(),"tweetProfileId" => $this->tweetProfileId->getBytes(), "tweetContent" => $this->tweetContent, "tweetDate" => $formattedDate];
-		$statement->execute($parameters);
+	public function getProfileEmail(): string {
+		return $this->profileEmail;
 	}
-
 	/**
-	 * gets the Tweet by tweetId
+	 * mutator method for email
 	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @param Uuid|string $tweetId tweet id to search for
-	 * @return Tweet|null Tweet found or null if not found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when a variable are not the correct data type
+	 * @param string $newProfileEmail new value of email
+	 * @throws \InvalidArgumentException if $newEmail is not a valid email or insecure
+	 * @throws \RangeException if $newEmail is > 128 characters
+	 * @throws \TypeError if $newEmail is not a string
 	 **/
-	public static function getTweetByTweetId(\PDO $pdo, $tweetId) : ?Tweet {
-		// sanitize the tweetId before searching
-		try {
-			$tweetId = self::validateUuid($tweetId);
-		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
-			throw(new \PDOException($exception->getMessage(), 0, $exception));
+	public function setProfileEmail(string $newProfileEmail): void {
+		// verify the email is secure
+		$newProfileEmail = trim($newProfileEmail);
+		$newProfileEmail = filter_var($newProfileEmail, FILTER_VALIDATE_EMAIL);
+		if(empty($newProfileEmail) === true) {
+			throw(new \InvalidArgumentException("profile email is empty or insecure"));
 		}
-
-		// create query template
-		$query = "SELECT tweetId, tweetProfileId, tweetContent, tweetDate FROM tweet WHERE tweetId = :tweetId";
-		$statement = $pdo->prepare($query);
-
-		// bind the tweet id to the place holder in the template
-		$parameters = ["tweetId" => $tweetId->getBytes()];
-		$statement->execute($parameters);
-
-		// grab the tweet from mySQL
-		try {
-			$tweet = null;
-			$statement->setFetchMode(\PDO::FETCH_ASSOC);
-			$row = $statement->fetch();
-			if($row !== false) {
-				$tweet = new Tweet($row["tweetId"], $row["tweetProfileId"], $row["tweetContent"], $row["tweetDate"]);
-			}
-		} catch(\Exception $exception) {
-			// if the row couldn't be converted, rethrow it
-			throw(new \PDOException($exception->getMessage(), 0, $exception));
+		// verify the email will fit in the database
+		if(strlen($newProfileEmail) > 128) {
+			throw(new \RangeException("profile email is too large"));
 		}
-		return($tweet);
+		// store the email
+		$this->profileEmail = $newProfileEmail;
 	}
-
 	/**
-	 * gets the Tweet by profile id
+	 * accessor method for profileHash
 	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @param Uuid|string $tweetProfileId profile id to search by
-	 * @return \SplFixedArray SplFixedArray of Tweets found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when variables are not the correct data type
-	 **/
-	public static function getTweetByTweetProfileId(\PDO $pdo, $tweetProfileId) : \SplFixedArray {
-
-		try {
-			$tweetProfileId = self::validateUuid($tweetProfileId);
-		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
-			throw(new \PDOException($exception->getMessage(), 0, $exception));
-		}
-
-		// create query template
-		$query = "SELECT tweetId, tweetProfileId, tweetContent, tweetDate FROM tweet WHERE tweetProfileId = :tweetProfileId";
-		$statement = $pdo->prepare($query);
-		// bind the tweet profile id to the place holder in the template
-		$parameters = ["tweetProfileId" => $tweetProfileId->getBytes()];
-		$statement->execute($parameters);
-		// build an array of tweets
-		$tweets = new \SplFixedArray($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
-			try {
-				$tweet = new Tweet($row["tweetId"], $row["tweetProfileId"], $row["tweetContent"], $row["tweetDate"]);
-				$tweets[$tweets->key()] = $tweet;
-				$tweets->next();
-			} catch(\Exception $exception) {
-				// if the row couldn't be converted, rethrow it
-				throw(new \PDOException($exception->getMessage(), 0, $exception));
-			}
-		}
-		return($tweets);
+	 * @return string value of hash
+	 */
+	public function getProfileHash(): string {
+		return $this->profileHash;
 	}
-
 	/**
-	 * gets the Tweet by content
+	 * mutator method for profile hash password
 	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @param string $tweetContent tweet content to search for
-	 * @return \SplFixedArray SplFixedArray of Tweets found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when variables are not the correct data type
-	 **/
-	public static function getTweetByTweetContent(\PDO $pdo, string $tweetContent) : \SplFixedArray {
-		// sanitize the description before searching
-		$tweetContent = trim($tweetContent);
-		$tweetContent = filter_var($tweetContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
-		if(empty($tweetContent) === true) {
-			throw(new \PDOException("tweet content is invalid"));
+	 * @param string $newProfileHash
+	 * @throws \InvalidArgumentException if the hash is not secure
+	 * @throws \RangeException if the hash is not 128 characters
+	 * @throws \TypeError if profile hash is not a string
+	 */
+	public function setProfileHash(string $newProfileHash): void {
+		//enforce that the hash is properly formatted
+		$newProfileHash = trim($newProfileHash);
+		$newProfileHash = strtolower($newProfileHash);
+		if(empty($newProfileHash) === true) {
+			throw(new \InvalidArgumentException("profile password hash empty or insecure"));
 		}
-
-		// escape any mySQL wild cards
-		$tweetContent = str_replace("_", "\\_", str_replace("%", "\\%", $tweetContent));
-
-		// create query template
-		$query = "SELECT tweetId, tweetProfileId, tweetContent, tweetDate FROM tweet WHERE tweetContent LIKE :tweetContent";
-		$statement = $pdo->prepare($query);
-
-		// bind the tweet content to the place holder in the template
-		$tweetContent = "%$tweetContent%";
-		$parameters = ["tweetContent" => $tweetContent];
-		$statement->execute($parameters);
-
-		// build an array of tweets
-		$tweets = new \SplFixedArray($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
-			try {
-				$tweet = new Tweet($row["tweetId"], $row["tweetProfileId"], $row["tweetContent"], $row["tweetDate"]);
-				$tweets[$tweets->key()] = $tweet;
-				$tweets->next();
-			} catch(\Exception $exception) {
-				// if the row couldn't be converted, rethrow it
-				throw(new \PDOException($exception->getMessage(), 0, $exception));
-			}
+		//enforce that the hash is a string representation of a hexadecimal
+		if(!ctype_xdigit($newProfileHash)) {
+			throw(new \InvalidArgumentException("profile password hash is empty or insecure"));
 		}
-		return($tweets);
+		//enforce that the hash is exactly 128 characters.
+		if(strlen($newProfileHash) !== 128) {
+			throw(new \RangeException("profile hash must be 128 characters"));
+		}
+		//store the hash
+		$this->profileHash = $newProfileHash;
 	}
-
 	/**
-	 * gets all Tweets
+	 * accessor method for phone
 	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @return \SplFixedArray SplFixedArray of Tweets found or null if not found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when variables are not the correct data type
+	 * @return string value of phone or null
 	 **/
-	public static function getAllTweets(\PDO $pdo) : \SPLFixedArray {
-		// create query template
-		$query = "SELECT tweetId, tweetProfileId, tweetContent, tweetDate FROM tweet";
-		$statement = $pdo->prepare($query);
-		$statement->execute();
-
-		// build an array of tweets
-		$tweets = new \SplFixedArray($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
-			try {
-				$tweet = new Tweet($row["tweetId"], $row["tweetProfileId"], $row["tweetContent"], $row["tweetDate"]);
-				$tweets[$tweets->key()] = $tweet;
-				$tweets->next();
-			} catch(\Exception $exception) {
-				// if the row couldn't be converted, rethrow it
-				throw(new \PDOException($exception->getMessage(), 0, $exception));
-			}
-		}
-		return ($tweets);
+	public function getProfilePhone(): ?string {
+		return ($this->profilePhone);
 	}
-
+	/**
+	 * mutator method for phone
+	 *
+	 * @param string $newProfilePhone new value of phone
+	 * @throws \InvalidArgumentException if $newPhone is not a string or insecure
+	 * @throws \RangeException if $newPhone is > 32 characters
+	 * @throws \TypeError if $newPhone is not a string
+	 **/
+	public function setProfilePhone(?string $newProfilePhone): void {
+		//if $profilePhone is null return it right away
+		if($newProfilePhone === null) {
+			$this->profilePhone = null;
+			return;
+		}
+		// verify the phone is secure
+		$newProfilePhone = trim($newProfilePhone);
+		$newProfilePhone = filter_var($newProfilePhone, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+		if(empty($newProfilePhone) === true) {
+			throw(new \InvalidArgumentException("profile phone is empty or insecure"));
+		}
+		// verify the phone will fit in the database
+		if(strlen($newProfilePhone) > 32) {
+			throw(new \RangeException("profile phone is too large"));
+		}
+		// store the phone
+		$this->profilePhone = $newProfilePhone;
+	}
+	/**
+	 *accessor method for profile salt
+	 *
+	 * @return string representation of the salt hexadecimal
+	 */
+	public function getProfileSalt(): string {
+		return $this->profileSalt;
+	}
+	/**
+	 * mutator method for profile salt
+	 *
+	 * @param string $newProfileSalt
+	 * @throws \InvalidArgumentException if the salt is not secure
+	 * @throws \RangeException if the salt is not 64 characters
+	 * @throws \TypeError if the profile salt is not a string
+	 */
+	public function setProfileSalt(string $newProfileSalt): void {
+		//enforce that the salt is properly formatted
+		$newProfileSalt = trim($newProfileSalt);
+		$newProfileSalt = strtolower($newProfileSalt);
+		//enforce that the salt is a string representation of a hexadecimal
+		if(!ctype_xdigit($newProfileSalt)) {
+			throw(new \InvalidArgumentException("profile password hash is empty or insecure"));
+		}
+		//enforce that the salt is exactly 64 characters.
+		if(strlen($newProfileSalt) !== 64) {
+			throw(new \RangeException("profile salt must be 128 characters"));
+		}
+		//store the hash
+		$this->profileSalt = $newProfileSalt;
+	}
 	/**
 	 * formats the state variables for JSON serialization
 	 *
 	 * @return array resulting state variables to serialize
 	 **/
-	public function jsonSerialize() : array {
+	public function jsonSerialize() {
 		$fields = get_object_vars($this);
-
-		$fields["tweetId"] = $this->tweetId->toString();
-		$fields["tweetProfileId"] = $this->tweetProfileId->toString();
-
-		//format the date so that the front end can consume it
-		$fields["tweetDate"] = round(floatval($this->tweetDate->format("U.u")) * 1000);
-		return($fields);
+		$fields["profileId"] = $this->profileId->toString();
+		unset($fields["profileHash"]);
+		unset($fields["profileSalt"]);
+		return ($fields);
 	}
 }
 ?>
