@@ -14,7 +14,7 @@ use Ramsey\Uuid\Uuid;
 class Profile implements \JsonSerializable {
 	use ValidateUuid;
 	/**
-	 * id for this Profile; this is the primary key
+	 * id for this Profile; and this is the primary key
 	 * @var Uuid $profileId
 	 **/
 	private $profileId;
