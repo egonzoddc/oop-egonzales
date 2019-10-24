@@ -10,18 +10,7 @@ use RangeException;
 use TypeError;
 use UnexpectedValueException;
 
-/**
- * Cross Section of a Twitter Profile
- *
- * This is a cross section of what is probably stored about a Twitter user. This entity is a top level entity that
- * holds the keys to the other entities in this example (i.e., Favorite and Profile).
- *
-class Profile implements \JsonSerializable {
-	use ValidateUuid;
-	/**
-	 * id for this Profile; and this is the primary key
-	 * @var Uuid $profileId
-	 **/
+
 class Profile  {
 	use ValidateUuid;
 	/**
@@ -94,7 +83,7 @@ class Profile  {
 	}
 
 	/**
-	 * accessor method for profile id
+	 * getter method for profile id
 	 *
 	 * @return Uuid value of profile id (or null if new Profile)
 	 **/
@@ -103,7 +92,7 @@ class Profile  {
 	}
 
 	/**
-	 * mutator method for profile id
+	 * setter method for profile id
 	 *
 	 * @param Uuid| string $newProfileId value of new profile id
 	 * @throws RangeException if $newProfileId is not positive
@@ -121,7 +110,7 @@ class Profile  {
 	}
 
 	/**
-	 * accessor method for account activation token
+	 * getter method for account activation token
 	 *
 	 * @return string value of the activation token
 	 */
@@ -130,7 +119,7 @@ class Profile  {
 	}
 
 	/**
-	 * mutator method for account activation token
+	 * setter method for account activation token
 	 *
 	 * @param string $newProfileActivationToken
 	 * @throws InvalidArgumentException  if the token is not a string or insecure
@@ -154,7 +143,7 @@ class Profile  {
 	}
 
 	/**
-	 * accessor method for at handle
+	 * getter method for at handle
 	 *
 	 * @return string value of at handle
 	 **/
@@ -163,7 +152,7 @@ class Profile  {
 	}
 
 	/**
-	 * mutator method for at handle
+	 * setter method for at handle
 	 *
 	 * @param string $newProfileAtHandle new value of at handle
 	 * @throws InvalidArgumentException if $newAtHandle is not a string or insecure
@@ -186,7 +175,7 @@ class Profile  {
 	}
 
 	/**
-	 * accessor method for email
+	 * getter method for email
 	 *
 	 * @return string value of email
 	 **/
@@ -195,7 +184,7 @@ class Profile  {
 	}
 
 	/**
-	 * mutator method for email
+	 * setter method for email
 	 *
 	 * @param string $newProfileEmail new value of email
 	 * @throws InvalidArgumentException if $newEmail is not a valid email or insecure
@@ -218,7 +207,7 @@ class Profile  {
 	}
 
 	/**
-	 * accessor method for profileHash
+	 * getter method for profileHash
 	 *
 	 * @return string value of hash
 	 */
@@ -227,7 +216,7 @@ class Profile  {
 	}
 
 	/**
-	 * mutator method for profile hash password
+	 * setter method for profile hash password
 	 *
 	 * @param string $newProfileHash
 	 * @throws InvalidArgumentException if the hash is not secure
@@ -254,7 +243,7 @@ class Profile  {
 	}
 
 	/**
-	 * accessor method for phone
+	 * getter method for phone
 	 *
 	 * @return string value of phone or null
 	 **/
@@ -263,7 +252,7 @@ class Profile  {
 	}
 
 	/**
-	 * mutator method for phone
+	 * setter method for phone
 	 *
 	 * @param string $newProfilePhone new value of phone
 	 * @throws InvalidArgumentException if $newPhone is not a string or insecure
@@ -291,7 +280,7 @@ class Profile  {
 	}
 
 	/**
-	 *accessor method for profile salt
+	 *getter method for profile salt
 	 *
 	 * @return string representation of the salt hexadecimal
 	 */
@@ -300,7 +289,7 @@ class Profile  {
 	}
 
 	/**
-	 * mutator method for profile salt
+	 * setter method for profile salt
 	 *
 	 * @param string $newProfileSalt
 	 * @throws InvalidArgumentException if the salt is not secure
