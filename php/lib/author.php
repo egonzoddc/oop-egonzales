@@ -1,7 +1,7 @@
 <?php
 
 namespace egonzoddc\OOP;
-require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
+require_once(dirname(__DIR__, 1) . "/vendor/autoload.php");
 
 use Exception;
 use InvalidArgumentException;
@@ -107,15 +107,6 @@ class Profile  {
 		}
 		// convert and store the profile id
 		$this->profileId = $uuid;
-	}
-
-	/**
-	 * getter method for account activation token
-	 *
-	 * @return string value of the activation token
-	 */
-	public function getProfileActivationToken(): ?string {
-		return ($this->profileActivationToken);
 	}
 
 	/**
